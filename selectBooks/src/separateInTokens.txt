@@ -1,0 +1,2 @@
+const QByteArray line = file.readLine().simplified();
+const QList<QByteArray> tokens = line.split(' ');
