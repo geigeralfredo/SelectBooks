@@ -25,10 +25,6 @@ set(SRC_CODE
     src/openFile_Lib.cpp
 )
 
-LINK_DIRECTORIES(
-    ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug
-)
-
 add_library(
     ${PROJECT_NAME}
     SHARED

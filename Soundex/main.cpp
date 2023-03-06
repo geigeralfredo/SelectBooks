@@ -3,15 +3,29 @@
  *******************************************************************/
 #include "soundexProj.h"
 #include "openFile_Lib.h"
+#include "elapsedtime_Lib.h"
 
 void
 tellTheFunctionName( const QString & function, const QString & lineNr );
 
 QString
-ParseWord( QString word, int codeLength = 5 );
+ParseWord( QString word, int codeLength = 4 );
 
 QChar
 ParseChar( QChar c );
+
+/********************************************************
+*          returns the Project Name
+********************************************************/
+
+QString
+Soundex( const QString & project )
+  {
+  if ( project == "main" )
+    return __FUNCTION__;
+  else
+    return project;
+  }
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  *            main
@@ -19,25 +33,26 @@ ParseChar( QChar c );
 int
 main ( int argc, char *argv[] )
   {
-  /********************************************************************
-   *            Tell the name of the function we are in
-   *******************************************************************/
-  tellTheFunctionName( QString( __FUNCTION__ ), QString::number( __LINE__ ) );
+  ElapsedTime_Lib   timeIntervalObj;
+
+  QString           thisProjectName = Soundex( __FUNCTION__ );
 
   /********************************************************************
    *         Parameter validation
    *******************************************************************/
 
-  if ( argc < 2 )
+  if ( argc < 4 )
      {
-     qInfo()    << "Soundex - Function ( "
-                << __FUNCTION__
+     qInfo()    << thisProjectName << " - Function ( "
+                << thisProjectName
                 << " ) "
-                << "You may inform 2 parameters: "
+                << "You should inform 3 parameters: "
                 << Qt::endl
-                << "The 1rst is MANDATORY, it is the File with words to be encoded."
+                << "The 1rst one is MANDATORY, is the inFile with words to be encoded."
                 << Qt::endl
-                << "The 2nd is OPTIONAL, is an Integer (default=5) the length of the phonetic code."
+                << "The 2nd is also MANDATORY, is the outFile with the input words plus their phonetic codes."
+                << Qt::endl
+                << "The 3rd is OPTIONAL, is an Integer (default=4) that defines the length of the phonetic code."
                 << Qt::endl
                 << "Program will terminate "
                 << Qt::endl;
@@ -52,23 +67,24 @@ main ( int argc, char *argv[] )
    *  if codeLength is outside the range, default codeLength = 5
    *******************************************************************/
 
-  static const QRegularExpression   re( "\\d*" );  // a digit (\d), zero or more times (*)
+  static const QRegularExpression   regex_OnlyNumbers( "\\d*" );              // only numbers
+  static const QRegularExpression   regex_OnlyLetters( "^[a-zA-ZÀ-ž+]*$" );    // only letters
 
   QString                           codeLengthAsString;
-  int                               codeLengthAsInt = 5;        // default value
+  int                               codeLengthAsInt = 4;        // default value
 
-  if ( argc >= 3 )
+  if ( argc >= 4 )
      {
-     codeLengthAsString = argv[ 2 ];                            // conde length was informed
-     QRegularExpressionMatch    match       = re.match( codeLengthAsString );
-     bool                       hasMatch    = match.hasMatch(); // true
+     codeLengthAsString = argv[ 3 ];                            // conde length was informed
+     QRegularExpressionMatch    match_OnlyNumbers       = regex_OnlyNumbers.match( codeLengthAsString );
+     bool                       hasMatch_OnlyNumbers    = match_OnlyNumbers.hasMatch();         // true
 
-     if ( hasMatch )
+     if ( hasMatch_OnlyNumbers )
         {
         codeLengthAsInt = codeLengthAsString.toInt();
 
         if ( ! ( 4 <= codeLengthAsInt && codeLengthAsInt <= 7 ) )
-          codeLengthAsInt = 5;
+          codeLengthAsInt = 4;
         }
      }
 
@@ -76,15 +92,19 @@ main ( int argc, char *argv[] )
    *         File definitions
    *******************************************************************/
 
-  QString   wordsFileIn = argv[ 1 ];
+  QString   wordsFileIn         = argv[ 1 ];
+  QString   encodedWordsFileOut = argv[ 2 ];
 
   QFileInfo fi_wordsFileIn( wordsFileIn );
+  QFileInfo fi_wordsFileOut( encodedWordsFileOut );
 
-  if ( ! fi_wordsFileIn.isAbsolute() )
+  if ( ! fi_wordsFileIn.isAbsolute() ||
+       ! fi_wordsFileOut.isAbsolute()
+     )
      {
-     qInfo()    << "Soundex - Function (" << __FUNCTION__ << ") "
+     qInfo()    << thisProjectName << " - Function (" << thisProjectName << ") "
                 << Qt::endl
-                << "File name must be absolute file path."
+                << "The informed files must be absolute file paths."
                 << Qt::endl
                 << "Program will terminate"
                 << Qt::endl;
@@ -96,20 +116,14 @@ main ( int argc, char *argv[] )
    *         File In
    *******************************************************************/
 
-  OpenFile_Lib  FileIn_Words( wordsFileIn, __FUNCTION__, "ROTX" );
+  OpenFile_Lib  FileIn_Words( wordsFileIn, thisProjectName, "ROTX" );
   QTextStream   myFileIn_Words( FileIn_Words.getMp_File() );
-
-  /********************************************************************
-   *         Hard coded File Names
-   *******************************************************************/
-
-  QString       encodedWordsFileOut = "/home/alfredo/Documents/TXT/selectedBooks_EncodedWords.txt";
 
   /********************************************************************
    *         File Out
    *******************************************************************/
 
-  OpenFile_Lib  FileOut_EncodedWords( encodedWordsFileOut, __FUNCTION__, "WOTRTX" );
+  OpenFile_Lib  FileOut_EncodedWords( encodedWordsFileOut, thisProjectName, "WOTRTX" );
   QTextStream   myFileOut_EncodedWords( FileOut_EncodedWords.getMp_File() );
 
   /********************************************************************
@@ -119,44 +133,59 @@ main ( int argc, char *argv[] )
   QString       originalLine;
   QString       encodedWord;
   QString       recordOut;
-  QStringList   wordList;
 
-  int           recordsRead     = 0;
-  int           recordsWritten  = 0;
+  // QStringList   wordList;
+
+  int           recordsRead     { 0 };
+  int           recordsWritten  { 0 };
 
   // get name to encode
   while ( ! myFileIn_Words.atEnd() )
         {
-        originalLine    = myFileIn_Words.readLine();
+        originalLine = myFileIn_Words.readLine();
         ++recordsRead;
 
-        wordList        = originalLine.split( " " );
+        QRegularExpressionMatch match_OnlyLetters       = regex_OnlyLetters.match( originalLine );
+        bool                    hasMatch_OnlyLetters    = match_OnlyLetters.hasMatch();            // true
 
-//        /********************************************************************
-//         *            Just for debugging
-//         *******************************************************************/
-//        qInfo() << "wordList = " << wordList;
-//        foreach( QString item, wordList )
-//        qDebug() << "wordList items = " << item;
-//        /********************************************************************/
+        if ( ! hasMatch_OnlyLetters )
+           {
+           qInfo()  << thisProjectName
+                    << " - The word = "
+                    << originalLine
+                    << Qt::endl
+                    << " has extraneous chars. The program will terminate."
+                    << Qt::endl;
 
-        encodedWord     = ParseWord( wordList.at( 2 ), codeLengthAsInt );
+           return EXIT_FAILURE;
+           }
 
-        qInfo() << "Soundex code for " << wordList[ 2 ]
-                << " is " << encodedWord << Qt::endl;
+        encodedWord = ParseWord( originalLine, codeLengthAsInt );
 
-        recordOut       = originalLine + " " + encodedWord;
+        /********************************************************************
+         *            Just for debugging
+         *******************************************************************/
+
+//        qInfo() << thisProjectName
+//                << " code for "
+//                << originalLine
+//                << " is "
+//                << encodedWord
+//                << Qt::endl;
+        /*******************************************************************/
+
+        recordOut = originalLine + " " + encodedWord;
 
         myFileOut_EncodedWords << recordOut << Qt::endl;
         ++recordsWritten;
         }
 
-    qInfo() << "Soundex - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
             << "Records Read    =  "
             << recordsRead
             << Qt::endl;
 
-    qInfo() << "Soundex - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
             << "Records Written =  "
             << recordsWritten
             << Qt::endl;
@@ -174,7 +203,7 @@ ParseWord( QString word, int codeLength )
   /********************************************************************
    *            Tell the name of the function we are in
    *******************************************************************/
-  tellTheFunctionName( QString( __FUNCTION__ ), QString::number( __LINE__ ) );
+  tellTheFunctionName( __FUNCTION__, QString::number( __LINE__ ) );
 
   QString   withoutDuplicate;
   QString   nameUpperCase = word.toUpper();
@@ -186,11 +215,11 @@ ParseWord( QString word, int codeLength )
   int       i { 0 };
   QChar     previous;
 
-  //        /********************************************************************
-  //         *            Just for debugging
-  //         *******************************************************************/
-  //        qInfo() << "nameUpperCase.length() = " << nameUpperCase.length()  << Qt::endl;
-  //         *******************************************************************/
+//  /********************************************************************
+//   *            Just for debugging
+//   *******************************************************************/
+//    qInfo() << "nameUpperCase.length() = " << nameUpperCase.length()  << Qt::endl;
+//   /*******************************************************************/
 
   while ( i < nameUpperCase.length() )
         {
@@ -213,11 +242,12 @@ ParseWord( QString word, int codeLength )
             }
         }
 
-  //        /********************************************************************
-  //         *            Just for debugging
-  //         *******************************************************************/
-  //        qInfo() << "withoutDuplicate = " <<  withoutDuplicate << Qt::endl;
-  //         *******************************************************************/
+//  /********************************************************************
+//   *            Just for debugging
+//   *******************************************************************/
+
+//  qInfo() << "withoutDuplicate = " <<  withoutDuplicate << Qt::endl;
+//  /*******************************************************************/
 
   QString code;
 
@@ -245,6 +275,12 @@ ParseWord( QString word, int codeLength )
         code.truncate( codeLength );   // truncate if code is too long
 
       }
+
+//  /*******************************************************************
+//  *           just for debugging
+//  *******************************************************************/
+//  qInfo () << "code = " << code << Qt::endl;
+//  /*******************************************************************/
 
   return code;
   }
@@ -305,5 +341,6 @@ void
 tellTheFunctionName( const QString & function, const QString & lineNr )
   {
   QString functionName =  "FUNCTION = " + function + " " + lineNr;
-  qInfo() << functionName << Qt::endl;
+
+//  qInfo() << functionName << Qt::endl;
   }

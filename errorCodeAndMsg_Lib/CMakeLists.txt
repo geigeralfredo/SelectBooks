@@ -25,42 +25,22 @@ set(SRC_CODE
     src/errorCodeAndMsg_Lib.cpp
 )
 
-
-LINK_DIRECTORIES(
-    ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug
-    ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug
-)
-
 add_library(
     ${PROJECT_NAME}
     SHARED
     ${SRC_CODE}
 )
 
-target_compile_definitions(
-    ${PROJECT_NAME}
-    PUBLIC
-        QT_NO_DEBUG_OUTPUT
-        QT_NO_INFO_OUTPUT
-        QT_NO_WARNING_OUTPUT
-        )
-
 target_include_directories(
     ${PROJECT_NAME}
     PUBLIC
     include
-    ../errorCodeAndMsg_Lib/include
-    ../openFile_Lib/include
+    ${HOME_DIR}/errorCodeAndMsg_Lib/include
+    ${HOME_DIR}/openFile_Lib/include
 )
 
 target_link_libraries(
     ${PROJECT_NAME}
-    PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
-)
-
-target_compile_definitions(
-    ${PROJECT_NAME}
-    PRIVATE
-    ERRORCODEANDMSG_LIB_LIBRARY
+    ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libopenFile_Lib.so
 )

@@ -34,11 +34,11 @@ SelectBooks::argumentsParsing( int argc, char *argv [] )
    *               Options with their values
    *--------------------------------------------------------------------*/
 
-  QCommandLineOption    allBooksOption( QStringList() << "a" << "create-let-allbooks",
+  QCommandLineOption    allBooksOption( QStringList() << "c" << "create-allbooks",
                                      QCoreApplication::     translate(
-                                          "main", "Command to Create the AllBooks file or Let it." ),
+                                          "main", "Command to Create the AllBooks file or not." ),
                                      QCoreApplication::     translate(
-                                          "main", "Create the AllBooks file or Let it." ) );
+                                          "main", "Create the AllBooks file or not." ) );
 
   QCommandLineOption    bookColletionOption( QStringList() << "b" << "book-collection",
                                           QCoreApplication::translate(
@@ -95,7 +95,7 @@ SelectBooks::argumentsParsing( int argc, char *argv [] )
    *     Variables to store parameters
    *--------------------------------------------------------------------*/
 
-  QString   createLetAllBooks;
+  QString   createAllBooks;
   QString   bookCollectionDir;
   QString   listsOfBooksDir;
   QString   subjectsFileName;
@@ -143,8 +143,8 @@ SelectBooks::argumentsParsing( int argc, char *argv [] )
 
   if ( parser.isSet( allBooksOption ) )
      {
-     createLetAllBooks = parser.value( allBooksOption );
-     qInfo() << functionName << " - createLetAllBooks = " << createLetAllBooks;
+     createAllBooks = parser.value( allBooksOption );
+     qInfo() << functionName << " - createAllBooks = " << createAllBooks;
      }
 
   /*--------------------------------------------------------------------
@@ -155,7 +155,7 @@ SelectBooks::argumentsParsing( int argc, char *argv [] )
     qInfo() << functionName << " - listsOfBooksDir   = " << listsOfBooksDir;
     qInfo() << functionName << " - subjectsFile      = " << subjectsFileName;
 
-  returnValuesVec[ 0 ]  = createLetAllBooks;
+  returnValuesVec[ 0 ]  = createAllBooks;
   returnValuesVec[ 1 ]  = bookCollectionDir;
   returnValuesVec[ 2 ]  = listsOfBooksDir;
   returnValuesVec[ 3 ]  = subjectsFileName;

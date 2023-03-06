@@ -7,7 +7,7 @@
  *        '-l' (or '--lists-of-books')
  *
  *        Optional Parameter:
- *        '-a' (or '--create-let-allbooks')
+ *        '-c' (or '--create-allbooks')
  *
  *        This application reads just the file names of all books
  *        that are present in the directory informed by the
@@ -15,32 +15,52 @@
  *
  *        Then, selects the books that have in their names or in their
  *        directory names the words that are present in the subjects file.
- *        The parameter '-s' (or '--subjects-file') inform the subjects file name.
+ *        '-s' (or '--subjects-file') parameter inform the subjects file name.
  *
  *        Subjects are words or group of words that denote a subject
  *        that will be searched for in the collection of books.
  *
- *        The lists of books directory informed by '-l' (or '--lists-of-books') parameter,
+ *        '-l' (or '--lists-of-books') inform the lists of books directory,
  *        are the books found in the book collection that have at least one of the words
  *        present in the subjects file.
  *
  *        The file names of the lists are a concatenation of the words of subjects
  *        plus the suffix '.list' and the extension '.txt'.
  *
- *        The parameter '-a' (or '--create-let-allbooks') is used to speed up the book selection process
- *        the value 'C' is: CREATE the AllBooks file (SLOWER)
- *        the value 'L' is: DON'T CREATE a new version of the file, use the old one(FASTER).
+ *        The parameter '-c' (or '--create-allbooks') is used to speed up the book selection process
+ *        the value 'Y' or 'y' is: CREATE the AllBooks file (SLOWER)
+ *        the value 'N' or 'n' is: DO NOT CREATE a new version of the file, use the old one(FASTER).
  ***************************************************************************/
 
 #include "selectBooks.h"
 #include "openFile_Lib.h"
+#include "elapsedtime_Lib.h"
+
+/********************************************************
+*          returns the Project Name
+********************************************************/
+
+QString
+selectBooks( const QString & project )
+  {
+  if ( project == "main" )
+    return ( __FUNCTION__ );
+  else
+    return project;
+  }
+
+/********************************************************
+*          returns the Project Name
+********************************************************/
 
 int
 main( int argc, char *argv [] )
   {
+  ElapsedTime_Lib       timeIntervalObj;
+
   Constants             constructedLiteral;
   SelectBooks           books2Select;
-  QString               functionName    = constructedLiteral.timeStamp() + " - " + __FUNCTION__ + " " + QString::number( __LINE__ );
+  QString               functionName    = constructedLiteral.timeStamp() + " - " + selectBooks( __FUNCTION__ ) + " " + QString::number( __LINE__ );
 
   // QCoreApplication      app( argc, argv );
 
@@ -79,7 +99,7 @@ main( int argc, char *argv [] )
    *      setting variables with received parameters
    *--------------------------------------------------------------------*/
 
-  QString               createLetAllBooks ( parmsVector[ 0 ] );
+  QString               createAllBooks    ( parmsVector[ 0 ] );
   QString               BookCollectionDir ( parmsVector[ 1 ] );
   QString               ListsOfBooksDir   ( parmsVector[ 2 ] );
   QString               SubjectsFile      ( parmsVector[ 3 ] );
@@ -189,7 +209,7 @@ main( int argc, char *argv [] )
    *        respective directories where they reside
    *--------------------------------------------------------------------*/
 
-  QString       allBooksFileName = fi_ListsOfBooksDir.absoluteFilePath() + constructedLiteral.retrieveLiteral( "allBooksTXTFile" );
+  QString       allBooksFileName        = fi_ListsOfBooksDir.absoluteFilePath() + constructedLiteral.retrieveLiteral( "allBooksTXTFile" );
   QFile         allBooksTxtFile( allBooksFileName );
 
   books2Select.setWorkingDirectory( fi_ListsOfBooksDir.absoluteFilePath() );
@@ -199,13 +219,15 @@ main( int argc, char *argv [] )
    *       may create the latest version of the book set
    *--------------------------------------------------------------------*/
 
+  QString       createAllBooksLowerCase = createAllBooks.toLower();
+
   if ( allBooksTxtFile.exists() &&
-       createLetAllBooks != 'C' )           // Let it alone
+       createAllBooksLowerCase != 'y' )           // do not create
     goto goAway;
 
   if ( ( ! allBooksTxtFile.exists() ) ||
        ( allBooksTxtFile.exists() &&
-         createLetAllBooks == 'C' )         // C = Create
+         createAllBooksLowerCase == 'y' )         // y = Create it
         )
      {
      if ( allBooksTxtFile.exists() )
@@ -327,7 +349,7 @@ main( int argc, char *argv [] )
   QString       FileTotals      = ListsOfBooksDir + constructedLiteral.retrieveLiteral( "selectedBooksTotalsFile" );
 
   OpenFile_Lib  myTotalsFile( FileTotals,
-                              __FUNCTION__,
+                                selectBooks( __FUNCTION__ ),
                               "WOAPTX" );       // WO = write only; AP = Append; TX = Text
 
   QTextStream   myFileForTheTotals( myTotalsFile.getMp_File() );
@@ -340,7 +362,7 @@ main( int argc, char *argv [] )
   QString       allBooksFile    = ListsOfBooksDir + constructedLiteral.retrieveLiteral( "allBooksTXTFile" );
 
   OpenFile_Lib  myAllBooksFile( allBooksFile,
-                                __FUNCTION__,
+                                selectBooks( __FUNCTION__ ),
                                 "ROTX" ); // RO = read only; TX = Text
 
   QTextStream   booksFile( myAllBooksFile.getMp_File() );

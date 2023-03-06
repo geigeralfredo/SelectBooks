@@ -25,11 +25,6 @@ set(SRC_CODE
     src/main.cpp
 )
 
-LINK_DIRECTORIES(
-    ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug
-    ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug
-)
-
 add_executable(
     ${PROJECT_NAME}
     ${SRC_CODE}
@@ -39,6 +34,7 @@ target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
     include/
+    ../elapsedTime_Lib/
     ../errorCodeAndMsg_Lib/include
     ../openFile_Lib/include
 )
@@ -46,6 +42,7 @@ target_include_directories(
 target_link_libraries(
     ${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Core
-    errorCodeAndMsg_Lib
-    openFile_Lib
+    ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libopenFile_Lib.so
+    ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/liberrorCodeAndMsg_Lib.so
+    ${HOME_DIR}/build-elapsedTime_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libelapsedTime_Lib.so
 )

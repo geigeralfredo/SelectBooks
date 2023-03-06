@@ -15,17 +15,40 @@
 #include "openFile_Lib.h"
 
 /********************************************************
+*          returns the Project Name
+********************************************************/
+
+QString
+removePlural( const QString & project )
+  {
+  if ( project == "main" )
+    return __FUNCTION__;
+  else
+    return project;
+  }
+
+/********************************************************
 *          checkParameters helper function
 ********************************************************/
 bool
-checkParameter( const QString & fileName );
+checkParameter( const QString & fileName, const QString & project = "checkParameter" );
 
+/********************************************************
+*          main function
+********************************************************/
 int
 main( int argc, char *argv[] )
   {
+  ElapsedTime_Lib   timeIntervalObj;
+
+  QString           thisProjectName = removePlural( __FUNCTION__ );
+
   if ( argc < 4 )
      {
-     qDebug()   << "removePlural - Function (" << __FUNCTION__ << ") "
+     qDebug()   << thisProjectName
+                << " - Function ("
+                << thisProjectName
+                << ") "
                 << "Please inform:"
                 << Qt::endl
                 << "The input file of Subjects."
@@ -54,9 +77,9 @@ main( int argc, char *argv[] )
         )
     return 2;
 
-  OpenFile_Lib  subjectsFileIn( subjectsFileNameIn, __FUNCTION__, "ROTX" );
-  OpenFile_Lib  subjectsWithoutPluralOut( subjectsWithoutPlural, __FUNCTION__, "WOTRTX" );
-  OpenFile_Lib  subjectsWithPluralOut( subjectsWithPlural, __FUNCTION__, "WOTRTX" );
+  OpenFile_Lib  subjectsFileIn( subjectsFileNameIn, thisProjectName, "ROTX" );
+  OpenFile_Lib  subjectsWithoutPluralOut( subjectsWithoutPlural, thisProjectName, "WOTRTX" );
+  OpenFile_Lib  subjectsWithPluralOut( subjectsWithPlural, thisProjectName, "WOTRTX" );
 
   QTextStream   mySubjectsIn( subjectsFileIn.getMp_File() );
   QTextStream   mySubjectsWithoutPluralOut( subjectsWithoutPluralOut.getMp_File() );
@@ -114,31 +137,39 @@ main( int argc, char *argv[] )
         previousLineSize    = currentLineSize;
         }
 
-    qInfo() << "removePlural - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function (" << thisProjectName << ") "
             << "Records read                   =  "
             << readCount
             << Qt::endl;
 
-    qInfo() << "removePlural - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function (" << thisProjectName << ") "
             << "Records written with plural    =  "
             << writeCountWithPlural
             << Qt::endl;
 
-    qInfo() << "removePlural - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function (" << thisProjectName << ") "
             << "Records written without plural =  "
             << writeCountWithoutPlural
             << Qt::endl;
 
-    qInfo() << "removePlural - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function (" << thisProjectName << ") "
             << "With plural                    =  "
             << writeCountWithPlural
             << " + "
             << Qt::endl
-            << "removePlural - Function (" << __FUNCTION__ << ") "
+
+            << thisProjectName
+            << " - Function (" << thisProjectName << ") "
             << "Without plural                 =  "
             << writeCountWithoutPlural
             << Qt::endl
-            << "removePlural - Function (" << __FUNCTION__ << ") "
+
+            << thisProjectName
+            << " - Function (" << thisProjectName << ") "
             << "                               =  "
             << writeCountWithoutPlural + writeCountWithPlural
             << Qt::endl;
@@ -149,7 +180,7 @@ main( int argc, char *argv[] )
 *          checkParameters function
 ********************************************************/
 bool
-checkParameter( const QString & fileName )
+checkParameter( const QString & fileName, const QString & project )
   {
   QFileInfo fi_fileName( fileName );
 
@@ -157,7 +188,8 @@ checkParameter( const QString & fileName )
     ( ! ( fi_fileName.exists() && fi_fileName.isFile() ) )
      )
      {
-     qDebug()   << "getExtensions - Function (" << __FUNCTION__ << ") "
+     qDebug()   << project
+                << " - Function (" << __FUNCTION__ << ") "
                 << Qt::endl
                 << "The file = "
                 << fileName << " does not exist or "
@@ -173,7 +205,8 @@ checkParameter( const QString & fileName )
     ( !  fi_fileName.isAbsolute() )
      )
      {
-     qDebug()   << "getExtensions - Function (" << __FUNCTION__ << ") "
+     qDebug()   << project
+                << " - Function (" << __FUNCTION__ << ") "
                 << Qt::endl
                 << "The file = "
                 << fileName << " must be an absolute file path."

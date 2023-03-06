@@ -25,6 +25,7 @@
  *******************************************************************/
 #include "wordsOnlyProj.h"
 #include "openFile_Lib.h"
+#include "elapsedtime_Lib.h"
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
@@ -247,19 +248,40 @@ verifyWord ( const QString                  & word,
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 /********************************************************
+*          returns the Project Name
+********************************************************/
+
+QString
+wordsOnly( const QString & project )
+  {
+  qInfo() << "project = " << project << Qt::endl;
+
+  if ( project == "main" )
+    return __FUNCTION__;
+  else
+    return project;
+  }
+
+/********************************************************
 *          checkParameter helper function
 ********************************************************/
 bool
-checkParameter( const QString & dirOrFileName, const QChar & dirOrFile = 'f' );
+checkParameter( const QString   & dirOrFileName,
+                const QChar     & dirOrFile = 'f',
+                const QString   & project   = wordsOnly("checkParameter") );
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 int
 main( int argc, char *argv[] )
   {
+  ElapsedTime_Lib   timeIntervalObj;
+
+  QString           thisProjectName = wordsOnly( __FUNCTION__ );
+
   if ( argc < 6 )
      {
-     qDebug()   << "WordsOnly - Function (" << __FUNCTION__ << ") "
+     qDebug()   << thisProjectName << " - Function (" << thisProjectName << ") "
                 << "This program expects 5 parameters:"
                 << " 1 - The input file with the list of All Books."
                 << " 2 - The Directory where the actual Books are located."
@@ -288,17 +310,17 @@ main( int argc, char *argv[] )
   QString           rejectedWordsFileOut    = argv[ 4 ];
   QString           rejectedRegExFileOut    = argv[ 5 ];
 
-  bool              isFile1Ok               = checkParameter( allBooksFileIn );
-  bool              isFile2Ok               = checkParameter( bookCollectionDir, 'd' );
-  bool              isFile3Ok               = checkParameter( wordsOnlyFileOut );
-  bool              isFile4Ok               = checkParameter( rejectedWordsFileOut );
-  bool              isFile5Ok               = checkParameter( rejectedRegExFileOut );
+  bool              isFile1_Ok              = checkParameter( allBooksFileIn );
+  bool              isFile2_Ok              = checkParameter( bookCollectionDir, 'd' );
+  bool              isFile3_Ok              = checkParameter( wordsOnlyFileOut );
+  bool              isFile4_Ok              = checkParameter( rejectedWordsFileOut );
+  bool              isFile5_Ok              = checkParameter( rejectedRegExFileOut );
 
-  if ( ( ! isFile1Ok ) ||
-       ( ! isFile2Ok ) ||
-       ( ! isFile3Ok ) ||
-       ( ! isFile4Ok ) ||
-       ( ! isFile5Ok )
+  if ( ( ! isFile1_Ok ) ||
+       ( ! isFile2_Ok ) ||
+       ( ! isFile3_Ok ) ||
+       ( ! isFile4_Ok ) ||
+       ( ! isFile5_Ok )
         )
     return 2;
 
@@ -308,20 +330,20 @@ main( int argc, char *argv[] )
    *         File In
    *******************************************************************/
 
-  OpenFile_Lib      FileIn_AllBooks( allBooksFileIn, __FUNCTION__, "ROTX" );
+  OpenFile_Lib      FileIn_AllBooks( allBooksFileIn, thisProjectName, "ROTX" );
   QTextStream       myFileIn_AllBooks( FileIn_AllBooks.getMp_File() );
 
   /********************************************************************
    *         File Out
    *******************************************************************/
 
-  OpenFile_Lib      FileOut_WordsOnly( wordsOnlyFileOut, __FUNCTION__, "WOTRTX" );
+  OpenFile_Lib      FileOut_WordsOnly( wordsOnlyFileOut, thisProjectName, "WOTRTX" );
   QTextStream       myFileOut_WordsOnly( FileOut_WordsOnly.getMp_File() );
 
-  OpenFile_Lib      FileOut_RejectedWords ( rejectedWordsFileOut, __FUNCTION__, "WOTRTX" );
+  OpenFile_Lib      FileOut_RejectedWords ( rejectedWordsFileOut, thisProjectName, "WOTRTX" );
   QTextStream       myFileOut_RejectedWords( FileOut_RejectedWords.getMp_File() );
 
-  OpenFile_Lib      FileOut_Log( rejectedRegExFileOut, __FUNCTION__, "WOTRTX" );
+  OpenFile_Lib      FileOut_Log( rejectedRegExFileOut, thisProjectName, "WOTRTX" );
   QTextStream       myFileOut_Log( FileOut_Log.getMp_File() );
 
   /********************************************************************
@@ -362,21 +384,27 @@ main( int argc, char *argv[] )
         currentLine     = currentLine.toLower();
 
         /********************************************************************
-         *      do not remove accents (diacritics)
+         *      Do not remove accents (diacritics).
+         *      In texts the base char and its diacritc (accented letter)
+         *      in Utf8 they're really two (2) separated chars and the
+         *      "normalize_KC" operation substitutes these two chars
+         *      by just one keeping its diacritic (still Utf8), so
+         *      you may treat the letter as a normal char as
+         *      if it has no diacritic.
          *******************************************************************/
 
         QString                         strAccented{};
         strAccented     = normalize_KC( currentLine );
 
         /********************************************************************
-         *      Split every word of each line considering every kind
-         *      of special characters as separators
+         *   Split every word of each line considering every kind
+         *   of special characters as separators but letters with diacritics
          *******************************************************************/
 
 //        QString                         strRe   = R"([^A-Za-z0-9]\s*(?=\w*))";
 
         QString                         strRe   =
-          R"([^A-Za-z0-9ÀÁÂÃÄÅàáâãäåÈÉÊËèéêëÌÍÎÏìíîïÒÓÔÕÖòóôõöÙÚÛÜùúûüÇçÑñÝýÿ+]\s*(?=\w*))";
+          R"([^A-Za-z0-9ÀÁÂÃÄÅàáâãäåÈÉÊËèéêëÌÍÎÏìíîïÒÓÔÕÖòóôõöÙÚÛÜùúûüÇçÑñÝýÿ]\s*(?=\w*))";
 
         static const QRegularExpression regex( strRe );
         QStringList                     strList = strAccented.split( regex, Qt::SkipEmptyParts );
@@ -419,30 +447,54 @@ main( int argc, char *argv[] )
         }
 
   /********************************************************************
+   *    Inserts line = "c++" that corresponds to a bunch of books.
+   *    That's because the plus sign (+) is considered as a separator
+   *    char so it is stripped out from the output
+   *******************************************************************/
+
+  myFileOut_WordsOnly << "c++" << Qt::endl;
+  ++goodWordsCount;
+
+  /********************************************************************
    *                    T O T A L S
    *******************************************************************/
 
-    qInfo() << "WordsOnly - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function ("
+            << thisProjectName
+            << ") "
             << "Records read                   =  "
             << readCount
             << Qt::endl;
 
-    qInfo() << "WordsOnly - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function ("
+            << thisProjectName
+            << ") "
             << "Accepted Words                 =  "
             << goodWordsCount
             << Qt::endl;
 
-    qInfo() << "WordsOnly - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function ("
+            << thisProjectName
+            << ") "
             << "All Books count                =  "
             << AllBooksCount
             << Qt::endl;
 
-    qInfo() << "WordsOnly - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function ("
+            << thisProjectName
+            << ") "
             << "Rejected Words                 =  "
             << rejectedWordsCount
             << Qt::endl;
 
-    qInfo() << "WordsOnly - Function (" << __FUNCTION__ << ") "
+    qInfo() << thisProjectName
+            << " - Function ("
+            << thisProjectName
+            << ") "
             << "Undesirable Words              =  "
             << matchCount
             << Qt::endl;
@@ -455,17 +507,17 @@ main( int argc, char *argv[] )
 *          checkParameter function
 ********************************************************/
 bool
-checkParameter( const QString & dirOrFileName, const QChar & dirOrFile )
+checkParameter( const QString   & dirOrFileName,
+                const QChar     & dirOrFile,
+                const QString   & project )
   {
   QFileInfo fi_dirOrFileName( dirOrFileName );
 
   if ( dirOrFile == 'f' )
      {
-     if (
-       ( ! ( fi_dirOrFileName.exists() && fi_dirOrFileName.isFile() ) )
-        )
+     if ( ! ( fi_dirOrFileName.exists() && fi_dirOrFileName.isFile() ) )
         {
-        qDebug()    << "WordsOnly - Function (" << __FUNCTION__ << ") "
+        qDebug()    <<  project << " - Function (" << __FUNCTION__ << ") "
                     << Qt::endl
                     << "The file = "
                     << dirOrFileName << " does not exist or "
@@ -479,11 +531,9 @@ checkParameter( const QString & dirOrFileName, const QChar & dirOrFile )
      }
   else
       {
-      if (
-        ( ! ( fi_dirOrFileName.exists() && fi_dirOrFileName.isDir() ) )
-         )
+      if ( ! ( fi_dirOrFileName.exists() && fi_dirOrFileName.isDir() ) )
          {
-         qDebug()   << "WordsOnly - Function (" << __FUNCTION__ << ") "
+         qDebug()   <<  project  << " - Function (" << __FUNCTION__ << ") "
                     << Qt::endl
                     << "The directory = "
                     << dirOrFileName << " does not exist or "
@@ -496,12 +546,9 @@ checkParameter( const QString & dirOrFileName, const QChar & dirOrFile )
          }
       }
 
-
-  if (
-    ( !  fi_dirOrFileName.isAbsolute() )
-     )
+  if  ( !  fi_dirOrFileName.isAbsolute() )
      {
-     qDebug()   << "WordsOnly - Function (" << __FUNCTION__ << ") "
+     qDebug()   << project << " - Function (" << __FUNCTION__ << ") "
                 << Qt::endl
                 << "The string = "
                 << dirOrFileName << " must be an absolute path."

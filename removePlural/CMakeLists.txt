@@ -14,23 +14,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
+find_package(Qt6 COMPONENTS Core REQUIRED)
+
 set(HOME_DIR /home/alfredo/QtProjects)
 
 set(SRC_CODE
-    ../errorCodeAndMsg_Lib/include/errorCodeAndMsg_LibProj.h
-    ../errorCodeAndMsg_Lib/include/errorCodeAndMsg_Lib.h
-    ../errorCodeAndMsg_Lib/src/errorCodeAndMsg_Lib.cpp
-    ../openFile_Lib/include/openFile_LibProj.h
-    ../openFile_Lib/include/openFile_Lib.h
-    ../openFile_Lib/src/openFile_Lib.cpp
     include/removePluralProj.h
     src/main.cpp
 )
-
-#LINK_DIRECTORIES(
-#    ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug
-#    ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug
-#)
 
 add_executable(
     ${PROJECT_NAME}
@@ -41,6 +32,7 @@ target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
     include/
+    ../elapsedTime_Lib/
     ../errorCodeAndMsg_Lib/include
     ../openFile_Lib/include
 )
@@ -48,6 +40,8 @@ target_include_directories(
 target_link_libraries(
     ${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Core
-#    errorCodeAndMsg_Lib
-#    openFile_Lib
+    ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libopenFile_Lib.so
+    ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/liberrorCodeAndMsg_Lib.so
+    ${HOME_DIR}/build-elapsedTime_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libelapsedTime_Lib.so
 )
+
