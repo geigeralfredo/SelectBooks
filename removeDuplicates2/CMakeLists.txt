@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.14)
+
+project(removeDuplicates2 LANGUAGES CXX)
+
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+
+find_package(Qt6 COMPONENTS Core REQUIRED)
+
+set(HOME_DIR /home/alfredo/QtProjects)
+
+set(SRC_CODE
+    removeDuplicates2Proj.h
+    main.cpp
+)
+
+add_executable(
+    ${PROJECT_NAME}
+    ${SRC_CODE}
+)
+
+target_include_directories(
+    ${PROJECT_NAME}
+    PRIVATE
+    ../elapsedTime_Lib/
+)
+
+target_link_libraries(${PROJECT_NAME}
+    Qt${QT_VERSION_MAJOR}::Core
+    ${HOME_DIR}/build-elapsedTime_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libelapsedTime_Lib.so
+)
+
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
