@@ -20,7 +20,7 @@
 #include <QProcessEnvironment>
 #include <QRegularExpression>
 #include <QString>
-#include <QTextStream>
+
 #include <QtGlobal>
 #include <QVector>
 

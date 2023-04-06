@@ -1,7 +1,7 @@
 #ifndef GETEXTENSIONSPROJ_H
 #define GETEXTENSIONSPROJ_H
 
-#include <QTextStream>
+// #include <QTextStream>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>

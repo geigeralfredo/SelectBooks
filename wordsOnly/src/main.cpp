@@ -26,6 +26,7 @@
 #include "wordsOnlyProj.h"
 #include "openFile_Lib.h"
 #include "elapsedtime_Lib.h"
+#include "logger_lib.h"
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
@@ -245,43 +246,29 @@ verifyWord ( const QString                  & word,
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
-/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
-
-/********************************************************
-*          returns the Project Name
-********************************************************/
-
-QString
-wordsOnly( const QString & project )
-  {
-  qInfo() << "project = " << project << Qt::endl;
-
-  if ( project == "main" )
-    return __FUNCTION__;
-  else
-    return project;
-  }
-
 /********************************************************
 *          checkParameter helper function
 ********************************************************/
 bool
 checkParameter( const QString   & dirOrFileName,
                 const QChar     & dirOrFile = 'f',
-                const QString   & project   = wordsOnly("checkParameter") );
+                const QString   & project   = "checkParameter" );
 
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 int
-main( int argc, char *argv[] )
+main( int argc, const char *argv[] )
   {
-  ElapsedTime_Lib   timeIntervalObj;
+  const QString logType = "RELEASE";
+  QString proj {"wordsOnly"};
 
-  QString           thisProjectName = wordsOnly( __FUNCTION__ );
+  Logger_Lib::init(proj, logType );
+
+  ElapsedTime_Lib   timeIntervalObj;
 
   if ( argc < 6 )
      {
-     qDebug()   << thisProjectName << " - Function (" << thisProjectName << ") "
+     qWarning() << "(" << proj << ")"
                 << "This program expects 5 parameters:"
                 << " 1 - The input file with the list of All Books."
                 << " 2 - The Directory where the actual Books are located."
@@ -330,20 +317,20 @@ main( int argc, char *argv[] )
    *         File In
    *******************************************************************/
 
-  OpenFile_Lib      FileIn_AllBooks( allBooksFileIn, thisProjectName, "ROTX" );
+  OpenFile_Lib      FileIn_AllBooks( allBooksFileIn, proj, "ROTX" );
   QTextStream       myFileIn_AllBooks( FileIn_AllBooks.getMp_File() );
 
   /********************************************************************
    *         File Out
    *******************************************************************/
 
-  OpenFile_Lib      FileOut_WordsOnly( wordsOnlyFileOut, thisProjectName, "WOTRTX" );
+  OpenFile_Lib      FileOut_WordsOnly( wordsOnlyFileOut, proj, "WOTRTX" );
   QTextStream       myFileOut_WordsOnly( FileOut_WordsOnly.getMp_File() );
 
-  OpenFile_Lib      FileOut_RejectedWords ( rejectedWordsFileOut, thisProjectName, "WOTRTX" );
+  OpenFile_Lib      FileOut_RejectedWords ( rejectedWordsFileOut, proj, "WOTRTX" );
   QTextStream       myFileOut_RejectedWords( FileOut_RejectedWords.getMp_File() );
 
-  OpenFile_Lib      FileOut_Log( rejectedRegExFileOut, thisProjectName, "WOTRTX" );
+  OpenFile_Lib      FileOut_Log( rejectedRegExFileOut, proj, "WOTRTX" );
   QTextStream       myFileOut_Log( FileOut_Log.getMp_File() );
 
   /********************************************************************
@@ -459,42 +446,27 @@ main( int argc, char *argv[] )
    *                    T O T A L S
    *******************************************************************/
 
-    qInfo() << thisProjectName
-            << " - Function ("
-            << thisProjectName
-            << ") "
+    qInfo() << "(" << proj << ")"            
             << "Records read                   =  "
             << readCount
             << Qt::endl;
 
-    qInfo() << thisProjectName
-            << " - Function ("
-            << thisProjectName
-            << ") "
+    qInfo() << "(" << proj << ")"
             << "Accepted Words                 =  "
             << goodWordsCount
             << Qt::endl;
 
-    qInfo() << thisProjectName
-            << " - Function ("
-            << thisProjectName
-            << ") "
+    qInfo() << "(" << proj << ")"
             << "All Books count                =  "
             << AllBooksCount
             << Qt::endl;
 
-    qInfo() << thisProjectName
-            << " - Function ("
-            << thisProjectName
-            << ") "
+    qInfo() << "(" << proj << ")"            
             << "Rejected Words                 =  "
             << rejectedWordsCount
             << Qt::endl;
 
-    qInfo() << thisProjectName
-            << " - Function ("
-            << thisProjectName
-            << ") "
+    qInfo() << "(" << proj << ")"            
             << "Undesirable Words              =  "
             << matchCount
             << Qt::endl;
@@ -509,7 +481,7 @@ main( int argc, char *argv[] )
 bool
 checkParameter( const QString   & dirOrFileName,
                 const QChar     & dirOrFile,
-                const QString   & project )
+                const QString   & proj )
   {
   QFileInfo fi_dirOrFileName( dirOrFileName );
 
@@ -517,7 +489,7 @@ checkParameter( const QString   & dirOrFileName,
      {
      if ( ! ( fi_dirOrFileName.exists() && fi_dirOrFileName.isFile() ) )
         {
-        qDebug()    <<  project << " - Function (" << __FUNCTION__ << ") "
+         qWarning() << "(" << proj << ")"
                     << Qt::endl
                     << "The file = "
                     << dirOrFileName << " does not exist or "
@@ -533,7 +505,7 @@ checkParameter( const QString   & dirOrFileName,
       {
       if ( ! ( fi_dirOrFileName.exists() && fi_dirOrFileName.isDir() ) )
          {
-         qDebug()   <<  project  << " - Function (" << __FUNCTION__ << ") "
+         qWarning() << "(" << proj << ")"
                     << Qt::endl
                     << "The directory = "
                     << dirOrFileName << " does not exist or "
@@ -548,7 +520,7 @@ checkParameter( const QString   & dirOrFileName,
 
   if  ( !  fi_dirOrFileName.isAbsolute() )
      {
-     qDebug()   << project << " - Function (" << __FUNCTION__ << ") "
+     qWarning() << "(" << proj << ")"
                 << Qt::endl
                 << "The string = "
                 << dirOrFileName << " must be an absolute path."

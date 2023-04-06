@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(removePlural LANGUAGES CXX)
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+project(DuplicateBooksLocation LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -19,8 +17,8 @@ find_package(Qt6 COMPONENTS Core REQUIRED)
 set(HOME_DIR /home/alfredo/QtProjects)
 
 set(SRC_CODE
-    include/removePluralProj.h
-    src/main.cpp
+    duplicateBooksLocationProj.h
+    main.cpp
 )
 
 add_executable(
@@ -31,19 +29,15 @@ add_executable(
 target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
-    include/
     ../elapsedTime_Lib/
     ../Logger_Lib/
-    ../errorCodeAndMsg_Lib/include
-    ../openFile_Lib/include
 )
 
-target_link_libraries(
-    ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+target_link_libraries(${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Core
-    ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libopenFile_Lib.so
-    ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/liberrorCodeAndMsg_Lib.so
     ${HOME_DIR}/build-elapsedTime_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libelapsedTime_Lib.so
     ${HOME_DIR}/build-Logger_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libLogger_Lib.so
 )
-

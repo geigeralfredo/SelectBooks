@@ -35,6 +35,7 @@
 #include "selectBooks.h"
 #include "openFile_Lib.h"
 #include "elapsedtime_Lib.h"
+#include "logger_lib.h"
 
 /********************************************************
 *          returns the Project Name
@@ -56,6 +57,11 @@ selectBooks( const QString & project )
 int
 main( int argc, char *argv [] )
   {
+    const QString logType = "RELEASE";
+    QString proj {"selectBooks"};
+
+    Logger_Lib::init(proj, logType );
+
   ElapsedTime_Lib       timeIntervalObj;
 
   Constants             constructedLiteral;

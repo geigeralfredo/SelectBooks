@@ -1,7 +1,7 @@
 #ifndef WORDSONLYPROJ_H
 #define WORDSONLYPROJ_H
 
-#include <QTextStream>
+// #include <QTextStream>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>

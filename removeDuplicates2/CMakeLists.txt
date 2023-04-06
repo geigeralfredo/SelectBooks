@@ -30,12 +30,14 @@ target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
     ../elapsedTime_Lib/
-)
-
-target_link_libraries(${PROJECT_NAME}
-    Qt${QT_VERSION_MAJOR}::Core
-    ${HOME_DIR}/build-elapsedTime_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libelapsedTime_Lib.so
+    ../Logger_Lib/
 )
 
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+target_link_libraries(${PROJECT_NAME}
+    Qt${QT_VERSION_MAJOR}::Core
+    ${HOME_DIR}/build-elapsedTime_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libelapsedTime_Lib.so
+    ${HOME_DIR}/build-Logger_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libLogger_Lib.so
+)

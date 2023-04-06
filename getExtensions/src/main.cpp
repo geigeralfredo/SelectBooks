@@ -17,6 +17,7 @@
 
 #include "elapsedtime_Lib.h"
 #include "openFile_Lib.h"
+#include "logger_lib.h"
 
 /********************************************************
 *          Conversion Map for E-Books,
@@ -24,47 +25,49 @@
 *          their totals
 ********************************************************/
 static const QMap <QString, int> conversionMap
-  {
+{
   /********************************************************
   *          E-Books
   ********************************************************/
-    { "cbr", 0 },
-    { "chm", 0 },
-    { "djv", 0 },
-    { "djvu", 0 },
-    { "doc", 0 },
-    { "docx", 0 },
-    { "epub", 0 },
-    { "fb2", 0 },
-    { "lit", 0 },
-    { "mobi", 0 },
-    { "pdf", 0 },
-    { "rtf", 0 },
-    { "txt", 0 },
+  { "azw", 0 },
+  { "azw3", 0 },
+  { "cbr", 0 },
+  { "chm", 0 },
+  { "djv", 0 },
+  { "djvu", 0 },
+  { "doc", 0 },
+  { "docx", 0 },
+  { "epub", 0 },
+  { "fb2", 0 },
+  { "lit", 0 },
+  { "mobi", 0 },
+  { "pdf", 0 },
+  { "rtf", 0 },
+  { "txt", 0 },
 
   /********************************************************
   *          Imagens
   ********************************************************/
-    { "gif", 1 },
-    { "jpeg", 1 },
-    { "jpg", 1 },
-    { "png", 1 },
-    { "tif", 1 },
+  { "gif", 1 },
+  { "jpeg", 1 },
+  { "jpg", 1 },
+  { "png", 1 },
+  { "tif", 1 },
 
   /********************************************************
   *          Videos
   ********************************************************/
-    { "flv", 2 },
-    { "mov", 2 },
-    { "mp4", 2 },
-    { "swf", 2 },
-    { "mkv", 2 },
+  { "flv", 2 },
+  { "mov", 2 },
+  { "mp4", 2 },
+  { "swf", 2 },
+  { "mkv", 2 },
 
   /********************************************************
   *          Audio
   ********************************************************/
-    { "mp3", 3 }
-  };
+  { "mp3", 3 }
+};
 
 /********************************************************
 *          returns the Project Name
@@ -72,18 +75,18 @@ static const QMap <QString, int> conversionMap
 
 QString
 getExtensions( const QString & project )
-  {
+{
   if ( project == "main" )
     return __FUNCTION__;
   else
     return project;
-  }
+}
 
 /********************************************************
 *          checkParameters helper function
 ********************************************************/
 bool
-checkParameter( const QString & fileName, const QString & project = getExtensions("checkParameter") );
+checkParameter( const QString & fileName, const QString & project = "checkParameter" );
 
 /********************************************************
 *          main Function
@@ -91,35 +94,38 @@ checkParameter( const QString & fileName, const QString & project = getExtension
 
 int
 main( int argc, char *argv[] )
-  {
-  ElapsedTime_Lib   timeIntervalObj;
+{
+  const QString logType {"RELEASE"};
+  const QString proj {"getExtensions"};
 
-  QString           thisProjectName = getExtensions( __FUNCTION__ );
+  Logger_Lib::init(proj, logType );
+
+  ElapsedTime_Lib timeIntervalObj;
 
   if ( argc < 4 )
      {
-     qDebug()   << thisProjectName << " - Function (" << thisProjectName << ") "
-                << "Please inform:"
-                << Qt::endl
-                << "The infile with the list of all books"
-                << Qt::endl
-                << "The outfile that will receive all extensions found"
-                << Qt::endl
-                << "The outfile that will receive all the rejected extensions"
-                << Qt::endl
-                << "Program will terminate"
-                << Qt::endl;
+     qWarning() << "Proj(" << proj << ")"
+              << "Please inform:"
+              << Qt::endl
+              << "The infile with the list of all books"
+              << Qt::endl
+              << "The outfile that will receive all extensions found"
+              << Qt::endl
+              << "The outfile that will receive all the rejected extensions"
+              << Qt::endl
+              << "Program will terminate"
+              << Qt::endl;
 
      return 1;
      }
 
-  QString   allBooksFileNameIn          = argv[ 1 ];
-  QString   allBooksFileNameOut01       = argv[ 2 ];
-  QString   RejectedExtensionsFileName  = argv[ 3 ];
+  QString allBooksFileNameIn          = argv[ 1 ];
+  QString allBooksFileNameOut01       = argv[ 2 ];
+  QString RejectedExtensionsFileName  = argv[ 3 ];
 
-  bool      isFile1Ok                   = checkParameter( argv[ 1 ] );
-  bool      isFile2Ok                   = checkParameter( argv[ 2 ] );
-  bool      isFile3Ok                   = checkParameter( argv[ 3 ] );
+  bool isFile1Ok                   = checkParameter( argv[ 1 ] );
+  bool isFile2Ok                   = checkParameter( argv[ 2 ] );
+  bool isFile3Ok                   = checkParameter( argv[ 3 ] );
 
   if ( ( ! isFile1Ok ) ||
        ( ! isFile2Ok ) ||
@@ -130,24 +136,24 @@ main( int argc, char *argv[] )
   /********************************************************
   *          File definitions
   ********************************************************/
-  OpenFile_Lib          allBooksFileIn( allBooksFileNameIn, thisProjectName, "ROTX" );
-  OpenFile_Lib          allBooksFileOut01( allBooksFileNameOut01, thisProjectName, "WOTRTX" );
-  OpenFile_Lib          RejectedExtensionsFileOut( RejectedExtensionsFileName, thisProjectName, "WOTRTX" );
+  OpenFile_Lib allBooksFileIn( allBooksFileNameIn, proj, "ROTX" );
+  OpenFile_Lib allBooksFileOut01( allBooksFileNameOut01, proj, "WOTRTX" );
+  OpenFile_Lib RejectedExtensionsFileOut( RejectedExtensionsFileName, proj, "WOTRTX" );
 
-  QTextStream           myAllBooksIn( allBooksFileIn.getMp_File() );
-  QTextStream           myAllBooksOut01( allBooksFileOut01.getMp_File() );
-  QTextStream           myRejectedExtensionsFileOut( RejectedExtensionsFileOut.getMp_File() );
+  QTextStream myAllBooksIn( allBooksFileIn.getMp_File() );
+  QTextStream myAllBooksOut01( allBooksFileOut01.getMp_File() );
+  QTextStream myRejectedExtensionsFileOut( RejectedExtensionsFileOut.getMp_File() );
 
-  int                   booksRead            { 0 };
-  int                   extensionsSummary    { 0 };
-  int                   ignoredRecs          { 0 };
+  int booksRead            { 0 };
+  int extensionsSummary    { 0 };
+  int ignoredRecs          { 0 };
 
-  QString               currentLine;
-  QString               extension;
+  QString currentLine;
+  QString extension;
 
   QHash <QString, int>  myHashTable;
   myHashTable.reserve( 2000 );
-  int                   matchCount { 0 };
+  int matchCount { 0 };
 
   /********************************************************
   *          List of integers to get the totals
@@ -182,7 +188,7 @@ main( int argc, char *argv[] )
         extension   = extension.toLower();
 
         if ( extension.size() == 0 )
-//           qInfo()   << thisProjectName << " - Function (" << thisProjectName << ") "
+//           qInfo()   << "Proj(" << proj << ")"
 //                    << " Line with no Extension = " << currentLine
 //                    << Qt::endl;
           continue;
@@ -191,16 +197,16 @@ main( int argc, char *argv[] )
                ( extension != "c" &&
                  extension != "h"
                )
-             ) ||
+               ) ||
              extension.size() > 6 )
            {
            ++ignoredRecs;
 
-           myRejectedExtensionsFileOut  << "Extension Size = "
-                                        << extension.size()
-                                        << "   Extension   = "
-                                        << extension
-                                        << Qt::endl;
+           myRejectedExtensionsFileOut << "Extension Size = "
+                                       << extension.size()
+                                       << "   Extension   = "
+                                       << extension
+                                       << Qt::endl;
 
            continue;
            }
@@ -220,7 +226,7 @@ main( int argc, char *argv[] )
         }
 
   QHashIterator <QString, int>  myHashIter( myHashTable );
-  int                           totalExtCount { 0 };
+  int totalExtCount { 0 };
 
   while ( myHashIter.hasNext() )
         {
@@ -241,77 +247,77 @@ main( int argc, char *argv[] )
   /********************************************************
   *          T o t a l s    listings
   ********************************************************/
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Books that were read        =  " << booksRead
-            << Qt::endl;
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Qty of different extensions =  " << extensionsSummary
-            << Qt::endl;
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Total extension count       =  " << totalExtCount
-            << Qt::endl;
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Records ignored             =  " << ignoredRecs
-            << Qt::endl;
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Total                       =  " << totalExtCount + ignoredRecs
-            << Qt::endl;
+  qInfo()  << "Proj(" << proj << ")"
+          << " Books that were read        =  " << booksRead
+          << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " Qty of different extensions =  " << extensionsSummary
+          << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " Total extension count       =  " << totalExtCount
+          << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " Records ignored             =  " << ignoredRecs
+          << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " Total                       =  " << totalExtCount + ignoredRecs
+          << Qt::endl;
 
-    qInfo() << "====================================================================="
-            << Qt::endl;
+  qInfo() << "====================================================================="
+          << Qt::endl;
 
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " E-Books Total         =  " << resourceTotals [ 0 ]
-            << Qt::endl;
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Images Total          =  " << resourceTotals [ 1 ]
-            << Qt::endl;
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Videos Total          =  " << resourceTotals [ 2 ]
-            << Qt::endl;
-    qInfo() << thisProjectName << " - Function (" << thisProjectName << ") "
-            << " Audio Total           =  " << resourceTotals [ 3 ]
-            << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " E-Books Total         =  " << resourceTotals [ 0 ]
+          << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " Images Total          =  " << resourceTotals [ 1 ]
+          << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " Videos Total          =  " << resourceTotals [ 2 ]
+          << Qt::endl;
+  qInfo() << "Proj(" << proj << ")"
+          << " Audio Total           =  " << resourceTotals [ 3 ]
+          << Qt::endl;
 
-  }
+}
 
 /********************************************************
 *          checkParameter function
 ********************************************************/
 bool
-checkParameter( const QString & fileName, const QString & project )
-  {
+checkParameter( const QString & fileName, const QString & proj )
+{
   QFileInfo fi_fileName( fileName );
 
   if (
     ( ! ( fi_fileName.exists() && fi_fileName.isFile() ) )
-     )
+    )
      {
-     qDebug()   << project << " - Function (" << __FUNCTION__ << ") "
-                << Qt::endl
-                << "The file = "
-                << fileName << " does not exist or "
-                << Qt::endl
-                << "the passed strings does not represent a file."
-                << Qt::endl
-                << "Program will terminate" << Qt::endl;
+     qInfo() << "Proj(" << proj << ")"
+              << Qt::endl
+              << "The file = "
+              << fileName << " does not exist or "
+              << Qt::endl
+              << "the passed strings does not represent a file."
+              << Qt::endl
+              << "Program will terminate" << Qt::endl;
 
      return ( fi_fileName.exists() && fi_fileName.isFile() );
      }
 
   if (
     ( !  fi_fileName.isAbsolute() )
-     )
+    )
      {
-     qDebug()   << project << " - Function (" << __FUNCTION__ << ") "
-                << Qt::endl
-                << "The file = "
-                << fileName << " must be an absolute file path."
-                << Qt::endl
-                << "Program will terminate" << Qt::endl;
+     qInfo() << "Proj(" << proj << ")"
+              << Qt::endl
+              << "The file = "
+              << fileName << " must be an absolute file path."
+              << Qt::endl
+              << "Program will terminate" << Qt::endl;
 
      return ( fi_fileName.isAbsolute() );
      }
 
   return true;
-  }
+}

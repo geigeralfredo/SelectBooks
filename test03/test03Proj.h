@@ -1,7 +1,6 @@
-#ifndef REMOVEPLURALPROJ_H
-#define REMOVEPLURALPROJ_H
+#ifndef TEST03PROJ_H
+#define TEST03PROJ_H
 
-// #include <QTextStream>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
@@ -16,5 +15,6 @@
 #include <QDateTime>
 #include <QMap>
 #include <QtGlobal>
+#include <QRegularExpression>
 
-#endif // REMOVEPLURALPROJ_H
+#endif // TEST03PROJ_H

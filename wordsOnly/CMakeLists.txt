@@ -30,6 +30,7 @@ target_include_directories(
     ${PROJECT_NAME}
     PRIVATE
     include/
+    ../Logger_Lib/
     ../elapsedTime_Lib/
     ../errorCodeAndMsg_Lib/include
     ../openFile_Lib/include
@@ -41,4 +42,5 @@ target_link_libraries(
     ${HOME_DIR}/build-openFile_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libopenFile_Lib.so
     ${HOME_DIR}/build-errorCodeAndMsg_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/liberrorCodeAndMsg_Lib.so
     ${HOME_DIR}/build-elapsedTime_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libelapsedTime_Lib.so
+    ${HOME_DIR}/build-Logger_Lib-Desktop_Qt_6_2_2_GCC_64bit-Debug/libLogger_Lib.so
 )
