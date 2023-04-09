@@ -48,14 +48,21 @@ void Logger_Lib::init(const QString & projName, const QString & logType)
                         ".log"};
 
  /******************************************************************
- *          Deleting files with same name
+ *          check if dir exists,
+ *          if does not exist create it
+ *          if exists delete files with same name
  ******************************************************************/
 
-    QDir dir( pathToDir, fileNameAndAsterisk );
-    for (const QString & filename: dir.entryList())
-    {
-        dir.remove(filename);
-    }
+    if ( ! QDir( pathToDir ).exists() )
+      QDir().mkdir( pathToDir );
+    else
+      {
+        QDir dir( pathToDir, fileNameAndAsterisk );
+        for (const QString & filename: dir.entryList())
+        {
+          dir.remove(filename);
+        }
+      }
 
  /******************************************************************
  *          Creating the Log file
